@@ -5,7 +5,6 @@ in {
   packages = [
     nixpkgs.alejandra
     nixpkgs.nodePackages.prettier
-    nixpkgs.nodePackages.prettier-plugin-toml
     nixpkgs.shfmt
   ];
 
@@ -17,7 +16,6 @@ in {
       };
       prettier = {
         command = lib.getExe nixpkgs.nodePackages.prettier;
-        options = ["--plugin" "${nixpkgs.nodePackages.prettier-plugin-toml}/lib/node_modules/prettier-plugin-toml/lib/index.js" "--write"];
         includes = [
           "*.css"
           "*.html"
