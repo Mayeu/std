@@ -364,15 +364,14 @@
         "yants": "yants"
       },
       "locked": {
-        "lastModified": 0,
-        "narHash": "sha256-XnaA3tCS63IMY04wTMqJ5EX47X0fDM9J+0dg6TxXvz8=",
-        "path": "/nix/store/5pmjinxmq96n3k708s8qii01awbr9w09-source",
+        "path": "../../",
         "type": "path"
       },
       "original": {
-        "path": "/nix/store/5pmjinxmq96n3k708s8qii01awbr9w09-source",
+        "path": "../../",
         "type": "path"
-      }
+      },
+      "parent": []
     },
     "systems": {
       "locked": {

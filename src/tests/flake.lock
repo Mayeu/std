@@ -538,15 +538,14 @@
         "yants": "yants"
       },
       "locked": {
-        "lastModified": 0,
-        "narHash": "sha256-fiGxfoXDVBJzBLpoxPwdM/AcRq/dNIeZLNrMqgmuhNk=",
-        "path": "/nix/store/b0qrhagsdpgyw9hx9wzrszwsdg5wfnnd-source",
+        "path": "../../",
         "type": "path"
       },
       "original": {
-        "path": "/nix/store/b0qrhagsdpgyw9hx9wzrszwsdg5wfnnd-source",
+        "path": "../../",
         "type": "path"
-      }
+      },
+      "parent": []
     },
     "systems": {
       "locked": {
