@@ -375,7 +375,8 @@
       "original": {
         "path": "../../",
         "type": "path"
-      }
+      },
+      "parent": []
     },
     "systems": {
       "locked": {
