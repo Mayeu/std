@@ -23,7 +23,7 @@ jobs:
 
     runs-on: ${{ inputs.runs-on }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
       - uses: nixbuild/nix-quick-install-action@v32
       - name: Update subflake references
         run: ./.github/workflows/update-subflake.sh
