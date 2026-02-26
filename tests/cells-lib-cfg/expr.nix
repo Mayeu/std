@@ -16,8 +16,11 @@ in
                 tasks = {};
               };
             }
-            .${n}
-            or {};
+            .${
+              n
+            }
+            or {
+            };
         }
       )
       .configFile

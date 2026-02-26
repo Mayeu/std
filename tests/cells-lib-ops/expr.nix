@@ -28,7 +28,9 @@ in
           devshell = dev.mkShell {name = "Test";};
         };
       }
-      .${n}
+      .${
+        n
+      }
       or "missing-test"
   )
   ops
