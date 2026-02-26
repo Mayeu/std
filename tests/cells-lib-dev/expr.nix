@@ -17,7 +17,9 @@ in
           .out
           .dockerComposeYaml;
       }
-      .${n}
+      .${
+        n
+      }
       or "missing-test"
   )
   dev

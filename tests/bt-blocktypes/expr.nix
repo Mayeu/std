@@ -69,8 +69,11 @@
     removeAttrs ({
         terra = f n "myrepo";
       }
-      .${n}
-      or (f n)) ["__functor"];
+      .${
+        n
+      }
+      or (f
+        n)) ["__functor"];
   # fake snapshot compliance across systems
   FakeActionsForOtherSystems = let
     fakeDrv = name:
@@ -115,7 +118,9 @@ in
               (
                 dmerge {${n} = actions';} FakeActionsForOtherSystems
               )
-              .${n};
+              .${
+                n
+              };
           in
             pipe r [
               (map trimProvisoPath)
