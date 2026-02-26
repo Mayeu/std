@@ -18,7 +18,7 @@ in {
       global.excludes = ["src/std/templates/**"];
       formatter = {
         go = {
-          command = "gofmt";
+          command = "${nixpkgs.go}/bin/gofmt";
           options = ["-w"];
           includes = ["*.go"];
         };
