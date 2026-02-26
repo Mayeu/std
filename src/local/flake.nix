@@ -1,7 +1,7 @@
 {
   inputs = {
     # injected (private) inputs
-    namaka.url = "github:nix-community/namaka/v0.2.0";
+    namaka.url = "github:nix-community/namaka/v0.2.1";
     namaka.inputs.haumea.follows = "std/haumea";
     namaka.inputs.nixpkgs.follows = "std/nixpkgs";
 
