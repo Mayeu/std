@@ -4,7 +4,18 @@
 # SPDX-License-Identifier: Unlicense
 {
   description = "The Nix Flakes framework for perfectionists with deadlines";
-  inputs.self.shallow = true;
+  # 2026-02-26 @mayeu: I don't understand what it is, and why it's there
+  # but it doesn't work for me:
+  #
+  #     ➜ nix --version
+  #     ➜ direnv allow
+  #     error: flake 'self' attribute 'shallow' is not supported
+  #     direnv: The follwing command just failed:
+  #     direnv: nix build --no-update-lock-file --no-write-lock-file --no-warn-dirty --accept-flake-config --no-link --keep-outputs --build-poll-interval 0 --builders-use-substitutes --print-out-paths --profile /Users/m/code-des-autres/std/.data/local/shells/default/enter-action git+file:///Users/m/code-des-autres/std#__std.actions.aarch64-darwin.local.shells.default.enter
+  #     Rerun with --show-trace (y/N): y
+  #     error: flake 'self' attribute 'shallow' is not supported.
+  #
+  #inputs.self.shallow = true;
   # override downstream with inputs.std.inputs.nixpkgs.follows = ...
   inputs.nixpkgs.url = "github:nixos/nixpkgs/release-23.11";
   inputs.lib.url = "github:nix-community/nixpkgs.lib";

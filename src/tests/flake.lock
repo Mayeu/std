@@ -538,13 +538,16 @@
         "yants": "yants"
       },
       "locked": {
-        "lastModified": 0,
-        "narHash": "sha256-fiGxfoXDVBJzBLpoxPwdM/AcRq/dNIeZLNrMqgmuhNk=",
-        "path": "/nix/store/b0qrhagsdpgyw9hx9wzrszwsdg5wfnnd-source",
-        "type": "path"
+        "lastModified": 1772122435,
+        "narHash": "sha256-V/2MGJfLyt+C188zMjhrgC+jtY7XW4+dPbDB3hzwJHU=",
+        "ref": "refs/heads/main",
+        "rev": "1bc369287b12f6378ff2471192255411190167a2",
+        "revCount": 822,
+        "type": "git",
+        "url": "file:///Users/m/code-des-autres/std/src/tests/../.."
       },
       "original": {
-        "path": "/nix/store/b0qrhagsdpgyw9hx9wzrszwsdg5wfnnd-source",
+        "path": "../../",
         "type": "path"
       }
     },
