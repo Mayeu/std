@@ -1,0 +1,4 @@
+A list of the PRs that I merged from divnix/std in this repo
+
+- [refactor: change subflake locking to an absolute git locking strategy for compatibility with nix 2.18](https://github.com/divnix/std/pull/418)
+- [Fix prettier](https://github.com/divnix/std/pull/419)
