@@ -47,10 +47,12 @@ in
       terraformConfiguration = builtins.toFile "config.tf.json" (builtins.toJSON
         (terraEval {
           inherit pkgs; # only effectively required for `pkgs.lib`
-          terranix_config = {
-            _file = fragmentRelPath;
-            imports = [target];
-          };
+          modules = [
+            {
+              _file = fragmentRelPath;
+              imports = [target];
+            }
+          ];
           strip_nulls = true;
         })
         .config);
