@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light" dir="ltr">
+<html lang="en" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -8,7 +8,7 @@
 
 
         <!-- Custom HTML head -->
-        
+
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
@@ -25,27 +25,42 @@
         <link rel="stylesheet" href="fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="highlight.css">
-        <link rel="stylesheet" href="tomorrow-night.css">
-        <link rel="stylesheet" href="ayu-highlight.css">
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
         <link rel="stylesheet" href="docs/theme/pagetoc.css">
 
-    </head>
-    <body class="sidebar-visible no-js">
-    <div id="body-container">
-        <!-- Provide site root to javascript -->
-        <script>
-            var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
-        </script>
 
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
             try {
-                var theme = localStorage.getItem('mdbook-theme');
-                var sidebar = localStorage.getItem('mdbook-sidebar');
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
 
                 if (theme.startsWith('"') && theme.endsWith('"')) {
                     localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
@@ -59,70 +74,51 @@
 
         <!-- Set the theme before any content is loaded, prevents flash -->
         <script>
-            var theme;
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
-            var html = document.querySelector('html');
+            const html = document.documentElement;
             html.classList.remove('light')
             html.classList.add(theme);
-            var body = document.querySelector('body');
-            body.classList.remove('no-js')
-            body.classList.add('js');
+            html.classList.add("js");
         </script>
 
         <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var body = document.querySelector('body');
-            var sidebar = null;
-            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
             } else {
                 sidebar = 'hidden';
+                sidebar_toggle.checked = false;
             }
-            sidebar_toggle.checked = sidebar === 'visible';
-            body.classList.remove('sidebar-visible');
-            body.classList.add("sidebar-" + sidebar);
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Introduction</a></li><li class="chapter-item expanded affix "><a href="ARCHITECTURE.html">Design & Architecture</a></li><li class="chapter-item expanded affix "><a href="PITCH.html">Sales Pitch</a></li><li class="chapter-item expanded affix "><a href="COMPARE.html">Comparisions</a></li><li class="chapter-item expanded affix "><a href="ROADMAP.html">Roadmap</a></li><li class="chapter-item expanded affix "><li class="part-title">Tutorials</li><li class="chapter-item expanded "><a href="tutorials/walk-in-the-park.html"><strong aria-hidden="true">1.</strong> A walk in the park</a></li><li class="chapter-item expanded "><a href="tutorials/hello-world/index.html"><strong aria-hidden="true">2.</strong> Hello World</a></li><li class="chapter-item expanded "><a href="tutorials/hello-moon/index.html"><strong aria-hidden="true">3.</strong> Hello Moon</a></li><li class="chapter-item expanded affix "><li class="part-title">How-To Guides</li><li class="chapter-item expanded "><a href="guides/growing-cells.html"><strong aria-hidden="true">4.</strong> Growing Cells</a></li><li class="chapter-item expanded "><a href="guides/incl.html"><strong aria-hidden="true">5.</strong> Include Filter</a></li><li class="chapter-item expanded "><a href="guides/envrc.html"><strong aria-hidden="true">6.</strong> Setup .envrc</a></li><li class="chapter-item expanded affix "><li class="part-title">Explanation</li><li class="chapter-item expanded "><a href="explain/why-nix.html"><strong aria-hidden="true">7.</strong> Why nix?</a></li><li class="chapter-item expanded "><a href="explain/why-std.html"><strong aria-hidden="true">8.</strong> Why std?</a></li><li class="chapter-item expanded "><a href="explain/architecture-decision-records/index.html"><strong aria-hidden="true">9.</strong> Architecture Decisions</a></li><li class="chapter-item expanded affix "><li class="part-title">Patterns</li><li class="chapter-item expanded "><a href="patterns/four-packaging-layers.html"><strong aria-hidden="true">10.</strong> The 4 Packaging Layers</a></li><li class="chapter-item expanded "><a href="patterns/ci-cd-10000-feet.html"><strong aria-hidden="true">11.</strong> CI/CD — 10000ft flight height</a></li><li class="chapter-item expanded affix "><li class="part-title">Templates</li><li class="chapter-item expanded "><a href="templates/minimal.html"><strong aria-hidden="true">12.</strong> Minimal</a></li><li class="chapter-item expanded "><a href="templates/rust.html"><strong aria-hidden="true">13.</strong> Rust</a></li><li class="chapter-item expanded affix "><li class="part-title">Reference</li><li class="chapter-item expanded "><a href="reference/cli.html"><strong aria-hidden="true">14.</strong> TUI/CLI</a></li><li class="chapter-item expanded "><a href="reference/conventions.html"><strong aria-hidden="true">15.</strong> Conventions</a></li><li class="chapter-item expanded "><a href="reference/deprecations.html"><strong aria-hidden="true">16.</strong> Deprecations</a></li><li class="chapter-item expanded "><a href="reference/blocktypes.html"><strong aria-hidden="true">17.</strong> Builtin Block Types</a></li><li class="chapter-item expanded "><a href="reference/lib.html"><strong aria-hidden="true">18.</strong> Cell: lib</a></li><li class="chapter-item expanded "><a href="reference/std.html"><strong aria-hidden="true">19.</strong> Cell: std</a></li><li class="chapter-item expanded "><a href="glossary.html"><strong aria-hidden="true">20.</strong> Glossary</a></li></ol>
-            </div>
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
             </div>
         </nav>
 
-        <!-- Track and set sidebar scroll position -->
-        <script>
-            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
-            sidebarScrollbox.addEventListener('click', function(e) {
-                if (e.target.tagName === 'A') {
-                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
-                }
-            }, { passive: true });
-            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
-            sessionStorage.removeItem('sidebar-scroll');
-            if (sidebarScrollTop) {
-                // preserve sidebar scroll position when navigating via links within sidebar
-                sidebarScrollbox.scrollTop = sidebarScrollTop;
-            } else {
-                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
-                var activeSection = document.querySelector('#sidebar .active');
-                if (activeSection) {
-                    activeSection.scrollIntoView({ block: 'center' });
-                }
-            }
-        </script>
-
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar-hover-placeholder"></div>
                 <div id="menu-bar" class="menu-bar sticky">
                     <div class="left-buttons">
                         <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
@@ -132,13 +128,14 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
                         </ul>
-                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
                             <i class="fa fa-search"></i>
                         </button>
                     </div>
@@ -155,7 +152,12 @@
 
                 <div id="search-wrapper" class="hidden">
                     <form id="searchbar-outer" class="searchbar-outer">
-                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
                     </form>
                     <div id="searchresults-outer" class="searchresults-outer hidden">
                         <div id="searchresults-header" class="searchresults-header"></div>
@@ -1119,12 +1121,9 @@ in {
 from there on.</p>
 <pre><code class="language-bash">#!/bin/sh
 
-# first time
-if [[ ! -d $(nix store add-path --name source --dry-run .) ]]; then
-  nix store add-path --name source .
-  (cd ./src/local &amp;&amp; nix flake lock --update-input std)
-  (cd ./src/tests &amp;&amp; nix flake lock --update-input std)
-fi
+# This locks subflakes to the latest commit of std
+(cd ./src/local &amp;&amp; nix flake lock --override-input std "git+file://$(pwd)/../..?rev=$(git -C ../.. rev-parse HEAD)")
+(cd ./src/tests &amp;&amp; nix flake lock --override-input std "git+file://$(pwd)/../..?rev=$(git -C ../.. rev-parse HEAD)")
 
 # shellcheck disable=SC1090
 . "$(fetchurl "https://raw.githubusercontent.com/paisano-nix/direnv/main/lib" "sha256-IgQhKK7UHL1AfCUntJO2KCaIDJQotRnK2qC4Daxk+wI=")"
@@ -2080,7 +2079,7 @@ name: {
 }
 </code></pre>
 <h2 id="devshells"><a class="header" href="#devshells">Devshells</a></h2>
-<pre><code class="language-nix">{  
+<pre><code class="language-nix">{
   root,
   super,
 }:
@@ -2242,7 +2241,7 @@ in
       '' {})
       (mkCommand currentSystem "publish" "copy the image to its remote registry" [skopeo-nix2container] ''
           ${copyFn}
-          copy docker://${target.image.repo}
+          copy docker://${target.image.repo} "$@"
         '' {
           meta.image = target.image.name;
           inherit proviso;
@@ -2286,11 +2285,11 @@ Available actions:
 */
 let
   inherit (root) mkCommand;
-  inherit (super) addSelectorFunctor;
+  inherit (super) addSelectorFunctor postDiffToGitHubSnippet;
 in
   name: repo: {
     inherit name;
-    __functor = self: selectors: self // selectors;
+    __functor = addSelectorFunctor;
     type = "terra";
     actions = {
       currentSystem,
@@ -2302,12 +2301,8 @@ in
       inherit (inputs) terranix;
       pkgs = inputs.nixpkgs.${currentSystem};
 
-      repoFolder = with pkgs.lib;
-        concatStringsSep "/" (["./nix"] ++ (init (splitString "/" fragmentRelPath)));
-
       git = {
         inherit repo;
-        # repo = "git@github.com:myorg/myrepo.git";
         ref = "main";
         state = fragmentRelPath + "/state.json";
       };
@@ -2316,24 +2311,27 @@ in
       terraformConfiguration = builtins.toFile "config.tf.json" (builtins.toJSON
         (terraEval {
           inherit pkgs; # only effectively required for `pkgs.lib`
-          terranix_config = {
-            _file = fragmentRelPath;
-            imports = [target];
-          };
+          modules = [
+            {
+              _file = fragmentRelPath;
+              imports = [target];
+            }
+          ];
           strip_nulls = true;
         })
         .config);
 
       setup = ''
+        export TF_VAR_fragment=${pkgs.lib.strings.escapeShellArg fragment}
+        export TF_VAR_fragmentRelPath=${fragmentRelPath}
         export TF_IN_AUTOMATION=1
-        # export TF_INPUT=0
         export TF_DATA_DIR="$PRJ_DATA_HOME/${fragmentRelPath}"
         export TF_PLUGIN_CACHE_DIR="$PRJ_CACHE_HOME/tf-plugin-cache"
         mkdir -p "$TF_DATA_DIR"
         mkdir -p "$TF_PLUGIN_CACHE_DIR"
-        dir="$PRJ_ROOT/${repoFolder}/.tf"
-        mkdir -p "$PRJ_ROOT/${repoFolder}/.tf"
-        cat &lt;&lt; MESSAGE &gt; "$PRJ_ROOT/${repoFolder}/.tf/readme.md"
+        dir="$PRJ_ROOT/.tf/${fragmentRelPath}/.tf"
+        mkdir -p "$dir"
+        cat &lt;&lt; MESSAGE &gt; "$dir/readme.md"
         This is a tf staging area.
         It is motivated by the terraform CLI requiring to be executed in a staging area.
         MESSAGE
@@ -2341,15 +2339,27 @@ in
         if [[ -e "$dir/config.tf.json" ]]; then rm -f "$dir/config.tf.json"; fi
         jq '.' ${terraformConfiguration} &gt; "$dir/config.tf.json"
       '';
-
       wrap = cmd: ''
         ${setup}
+
+        # Run the command and capture output
         terraform-backend-git git \
            --dir "$dir" \
            --repository ${git.repo} \
            --ref ${git.ref} \
            --state ${git.state} \
-           terraform ${cmd} "$@";
+           terraform ${cmd} "$@" \
+           ${pkgs.lib.optionalString (cmd == "plan") ''
+          -lock=false -no-color | tee "$PRJ_CACHE_HOME/tf.console.txt"
+        ''}
+
+        # Pass output to the snippet
+        ${pkgs.lib.optionalString (cmd == "plan") ''
+          output=$(cat "$PRJ_CACHE_HOME/tf.console.txt")
+          summary_plan=$(tac "$PRJ_CACHE_HOME/tf.console.txt" | grep -m 1 -E '^(Error:|Plan:|Apply complete!|No changes.|Success)' | tac || echo "View output.")
+          summary="&lt;code&gt;std ${fragmentRelPath}:${cmd}&lt;/code&gt;: $summary_plan"
+          ${postDiffToGitHubSnippet "${fragmentRelPath}:${cmd}" "$output" "$summary"}
+        ''}
       '';
     in [
       (mkCommand currentSystem "init" "tf init" [pkgs.jq pkgs.terraform pkgs.terraform-backend-git] (wrap "init") {})
@@ -2462,7 +2472,7 @@ Available actions:
 */
 let
   inherit (root) mkCommand;
-  inherit (super) addSelectorFunctor askUserToProceedSnippet;
+  inherit (super) addSelectorFunctor askUserToProceedSnippet postDiffToGitHubSnippet;
 in
   name: {
     __functor = addSelectorFunctor;
@@ -2583,34 +2593,11 @@ in
         } "$manifest_path/";
         }
 
-        # GitHub case
-        if [[ -v CI ]] &amp;&amp; [[ -v BRANCH ]] &amp;&amp; [[ -v OWNER_AND_REPO ]] &amp;&amp; command gh &gt; /dev/null ; then
+        ${postDiffToGitHubSnippet "${fragmentRelPath}:diff" "$(diff || true)" "&lt;code&gt;std ${fragmentRelPath}:diff&lt;/code&gt;"}
 
-          set +e # diff exits 1 if diff existed
-          read -r -d "" DIFFSTREAM &lt;&lt;DIFF
-        ## Standard DiffPost
-
-        This PR would generate the following \`kubectl\` diff:
-
-        &lt;details&gt;&lt;summary&gt;Preview&lt;/summary&gt;
-
-        \`\`\`diff
-        $(diff)
-        \`\`\`
-
-        &lt;/details&gt;
-        DIFF
-          set -e # we're past the invocation of diff
-
-          if ! gh pr --repo "$OWNER_AND_REPO" comment "$BRANCH" --edit-last -b "$DIFFSTREAM"; then
-            echo "Make a first post ..."
-            gh pr --repo "$OWNER_AND_REPO" comment "$BRANCH" -b "$DIFFSTREAM"
-          fi
-        else
-          KUBECTL_EXTERNAL_DIFF="icdiff -N -r"
-          export KUBECTL_EXTERNAL_DIFF
-          diff
-        fi
+        KUBECTL_EXTERNAL_DIFF="icdiff -N -r"
+        export KUBECTL_EXTERNAL_DIFF
+        diff
       '' {})
       (mkCommand currentSystem "apply" "Apply the manifests to K8s" [pkgs.kubectl pkgs.icdiff] ''
         ${build}
@@ -2637,8 +2624,10 @@ in
         } "$manifest_path/";
         }
 
+        set +o errexit
         diff
         ret=$?
+        set -o errexit
         if [[ $ret == 0 ]] || [[ $ret == 1 ]]; then
           ${askUserToProceedSnippet "apply" "run"}
         fi
@@ -2890,6 +2879,7 @@ in
         declare job_path="$PRJ_DATA_HOME/${job_path}"
         render() {
           echo "Rendering to $job_path..."
+          mkdir -p "$PRJ_DATA_HOME/${dirOf fragmentRelPath}"
           rm -rf "$job_path"
           ln -s "${jobWithGitRevision target}" "$job_path"
           if status=$(nomad validate "$job_path"); then
@@ -2912,7 +2902,7 @@ in
         render
         if ! plan_results=$(nomad plan -force-color "$job_path"); then
           echo "$plan_results"
-          run() { echo "$plan_results" | grep 'nomad job run -check-index'; }
+          run() { eval "$(echo "$plan_results" | grep 'nomad job run -check-index')"; }
           ${askUserToProceedSnippet "deploy" "run"}
         else
           echo "Job hasn't changed since last deployment, nothing to deploy"
@@ -2970,7 +2960,7 @@ in
            --changelog "$tmpfile" \
            --filter "^$targetname$"
 
-        sed -i -e "s|^|- \`$(date --iso-8601=m)\` |" "$tmpfile"
+        sed -i ''' -e "s|^|- \`$(date --iso-8601=m)\` |" "$tmpfile"
         cat "$tmpfile" &gt;&gt; "$updates"
       '' {})
     ];
@@ -4018,6 +4008,7 @@ git add . &amp;&amp; git commit -m "init"
             window.setTimeout(window.print, 100);
         });
         </script>
+
 
     </div>
     </body>
