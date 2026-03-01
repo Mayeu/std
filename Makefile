@@ -3,6 +3,10 @@ SYSTEM := $(shell nix eval --impure --raw --expr 'builtins.currentSystem')
 LINUX := x86_64-linux
 DARWIN := aarch64-darwin
 
+.PHONY: fmt
+fmt:
+	treefmt
+
 update-sub-flake:
 	cd $(root)
 	cd src/local && nix flake update
