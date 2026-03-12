@@ -774,9 +774,10 @@ in {
   format = "yaml";
   output = "lefthook.yml";
   packages = [nixpkgs.lefthook];
-  # Add an extra hook for adding required stages whenever the file changes
-  hook.extra = config:
-    lib.pipe config [
+  # Add an extra hook for adding required stages whenever the file changes.
+  # Skip hook installation in git worktrees where .git is a file, not a directory.
+  hook.extra = config: let
+    commands = lib.pipe config [
       toStagesConfig
       lib.attrNames
       (lib.map (stage: ''ln -sf "${mkScript stage}" ".git/hooks/${stage}"''))
@@ -785,8 +786,66 @@ in {
         ++ stages)
       (lib.concatStringsSep "\n")
     ];
+  in ''
+    if test "$(${lib.getExe nixpkgs.git} rev-parse --git-dir 2&gt;/dev/null)" = "$(${lib.getExe nixpkgs.git} rev-parse --git-common-dir 2&gt;/dev/null)"; then
+      ${commands}
+    fi
+  '';
 }
 </code></pre>
+<h6 id="explanation-of-the-in----block"><a class="header" href="#explanation-of-the-in----block">Explanation of the <code>in { ... }</code> block</a></h6>
+<p>This <code>in { ... }</code> block is a <strong>Nixago configuration record</strong>, it tells the
+Nixago block type how to generate and manage the <code>lefthook.yml</code> file.</p>
+<p><code>data = {};</code> is The actual lefthook config content. It’s empty here because this
+is just the template/scaffold, the real config data gets merged in by consumers
+(e.g. in <code>src/local/configs.nix</code> or wherever this is used). Nixago deep-merges
+<code>data</code> from the caller.</p>
+<p><code>hook.extra</code> is a Nixago hook hat runs whenever the generated <code>lefthook.yml</code> is
+materialized. It receives the final merged <code>config</code> (the full lefthook YAML
+content as a Nix attrset) and produces extra shell commands. Here’s the pipeline
+step by step:</p>
+<pre><code class="language-nix">hook.extra = config:
+  let
+    commands = lib.pipe config [
+      # 1. Strip non-stage keys (colors, extends, etc.)
+      #    e.g. { pre-commit = {...}; commit-msg = {...}; colors = true; }
+      #    becomes { pre-commit = {...}; commit-msg = {...}; }
+      toStagesConfig
+
+      # 2. Extract just the attribute names → ["pre-commit" "commit-msg"]
+      lib.attrNames
+
+      # 3. For each stage, create a symlink command:
+      #    ln -sf "/nix/store/...-lefthook-pre-commit" ".git/hooks/pre-commit"
+      #    The target is a Nix-built script (mkScript) that runs:
+      #      lefthook run "pre-commit" "$@"
+      #    (unless $LEFTHOOK == "0", which disables it)
+      (lib.map (stage: ''ln -sf "${mkScript stage}" ".git/hooks/${stage}"''))
+
+      # 4. Prepend "mkdir -p .git/hooks" IF there are any stages
+      #    ["mkdir -p .git/hooks" "ln -sf ..." "ln -sf ..."]
+      (stages:
+        lib.optional (stages != []) "mkdir -p .git/hooks"
+        ++ stages)
+
+      # 5. Join into a single newline-separated shell script string
+      (lib.concatStringsSep "\n")
+    ];
+  in ''
+    # Only install hooks in the main repo, not in worktrees.
+    # In worktrees, .git is a file pointing to the main repo's .git dir,
+    # so mkdir -p .git/hooks would fail.
+    if test "$(git rev-parse --git-dir)" = "$(git rev-parse --git-common-dir)"; then
+      ${commands}
+    fi
+  '';
+</code></pre>
+<p>When you run the Nixago hook (e.g. via <code>direnv allow</code> or <code>std</code> commands), it:</p>
+<ol>
+<li>Writes <code>lefthook.yml</code> to your project root</li>
+<li>Runs this <code>hook.extra</code> script, which symlinks Nix-built wrapper scripts into
+<code>.git/hooks/</code> (only in the main repo, not in worktrees)</li>
+</ol>
 </div>
 </div>
 <div class="std-target">
