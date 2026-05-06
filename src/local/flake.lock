@@ -347,11 +347,11 @@
         "yants": "yants"
       },
       "locked": {
-        "lastModified": 1772127938,
-        "narHash": "sha256-peYU8Fd5qYKMZpBMxKWFW6UHq+Qf8fLR2kpcQ8irBTw=",
-        "ref": "refs/heads/fix/upgrade-flake-lock",
-        "rev": "7c75c6d51d37fd4c7567ed0159497470d77e9c73",
-        "revCount": 836,
+        "lastModified": 1778080118,
+        "narHash": "sha256-0rCmr48YeRoX3Jsv2CIDPfa5oSvjWZthk1viffUq6U8=",
+        "ref": "refs/heads/fix/entering-the-shell-should-create-dotfile-at-the-root",
+        "rev": "b695f4d6a7581d52141d073debe629e734b4a89d",
+        "shallow": true,
         "type": "git",
         "url": "file:///Users/m/code-des-autres/std/src/local/../.."
       },
