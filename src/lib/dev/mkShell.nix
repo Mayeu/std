@@ -59,7 +59,31 @@ in
             commands = l.concatMap (o: o.commands) updated;
           };
       };
-  in
-    pkgs.devshell.mkShell {
+    # `nix develop` evaluates the derivation's outer shellHook *before*
+    # devshell's env.bash is sourced (which is where PRJ_ROOT=$PWD happens, see
+    # devshell's modules/devshell.nix). Prepending a `cd` to the real project
+    # root here makes PRJ_ROOT correct, and makes nixago — whose hooks resolve
+    # output paths against $PWD — materialize files at the project root rather
+    # than wherever `nix develop` was invoked from. The trailing `cd` restores
+    # the user's invocation cwd for the interactive shell.
+    shell = pkgs.devshell.mkShell {
       imports = [configuration nixagoModule];
-    }
+    };
+    rootPrelude = ''
+      _std_orig_pwd="$PWD"
+      if _std_root="$(${pkgs.git}/bin/git rev-parse --show-toplevel 2>/dev/null)"; then
+        cd "$_std_root"
+      else
+        echo "std: not in a git repo; using \$PWD ($PWD) as project root" >&2
+      fi
+      unset _std_root
+    '';
+    rootEpilogue = ''
+      cd "$_std_orig_pwd"
+      unset _std_orig_pwd
+    '';
+  in
+    derivation (shell.drvAttrs
+      // {
+        shellHook = rootPrelude + shell.drvAttrs.shellHook + rootEpilogue;
+      })
