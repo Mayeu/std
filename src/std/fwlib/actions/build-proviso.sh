@@ -35,7 +35,8 @@ fi
 if ! (
   command nix show-derivation ''${uncached[@]} 2>/dev/null |
     command jq --exit-status \
-      ' with_entries(
+      ' (.derivations // .)
+    | with_entries(
       select(.value|.env.preferLocalBuild != "1")
     ) | any
   ' 1>/dev/null
