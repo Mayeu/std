@@ -3083,6 +3083,15 @@ No description
 </code></pre>
 <p><em>Note, that you can extend any Nixago Pebble at the calling site
 via a built-in functor like in the example above.</em></p>
+<h6 id="project-root-resolution"><a class="header" href="#project-root-resolution">Project root resolution</a></h6>
+<p><code>mkShell</code> wraps the devshell’s outer <code>shellHook</code> so that, before <code>env.bash</code>
+is sourced, the working directory is <code>cd</code>’d to the git project root (via
+<code>git rev-parse --show-toplevel</code>). After <code>env.bash</code> returns, the original
+invocation cwd is restored.</p>
+<p>This makes <code>nix develop</code> from a subdirectory behave correctly: <code>PRJ_ROOT</code>
+points at the actual project root, and Nixago materializes its files there
+rather than in the subdirectory. If the project is not a git repository, a
+warning is printed and <code>PRJ_ROOT</code> falls back to <code>$PWD</code>.</p>
 </div>
 </div>
 <div class="std-block">
