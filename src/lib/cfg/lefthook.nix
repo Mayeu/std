@@ -21,21 +21,22 @@ in {
   format = "yaml";
   output = "lefthook.yml";
   packages = [nixpkgs.lefthook];
-  # Add an extra hook for adding required stages whenever the file changes.
-  # Skip hook installation in git worktrees where .git is a file, not a directory.
+  # Install symlinks into the resolved hooks dir, so this works from both the
+  # main checkout and linked worktrees. `git rev-parse --git-path hooks`
+  # returns `<common-dir>/hooks` (per gitrepository-layout(5): hooks live in
+  # the common gitdir, not the per-worktree private gitdir), so a single
+  # install from any worktree wires up hooks for every worktree.
   hook.extra = config: let
-    commands = lib.pipe config [
-      toStagesConfig
-      lib.attrNames
-      (lib.map (stage: ''ln -sf "${mkScript stage}" ".git/hooks/${stage}"''))
-      (stages:
-        lib.optional (stages != []) "mkdir -p .git/hooks"
-        ++ stages)
-      (lib.concatStringsSep "\n")
-    ];
-  in ''
-    if test "$(${lib.getExe nixpkgs.git} rev-parse --git-dir 2>/dev/null)" = "$(${lib.getExe nixpkgs.git} rev-parse --git-common-dir 2>/dev/null)"; then
-      ${commands}
-    fi
-  '';
+    stages = lib.pipe config [toStagesConfig lib.attrNames];
+    links =
+      lib.concatMapStringsSep "\n"
+      (stage: ''ln -sf "${mkScript stage}" "$_std_hooks_dir/${stage}"'')
+      stages;
+  in
+    lib.optionalString (stages != []) ''
+      _std_hooks_dir="$(${lib.getExe nixpkgs.git} rev-parse --git-path hooks)"
+      mkdir -p "$_std_hooks_dir"
+      ${links}
+      unset _std_hooks_dir
+    '';
 }
