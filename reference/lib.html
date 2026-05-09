@@ -783,23 +783,24 @@ in {
   format = "yaml";
   output = "lefthook.yml";
   packages = [nixpkgs.lefthook];
-  # Add an extra hook for adding required stages whenever the file changes.
-  # Skip hook installation in git worktrees where .git is a file, not a directory.
+  # Install symlinks into the resolved hooks dir, so this works from both the
+  # main checkout and linked worktrees. `git rev-parse --git-path hooks`
+  # returns `&lt;common-dir&gt;/hooks` (per gitrepository-layout(5): hooks live in
+  # the common gitdir, not the per-worktree private gitdir), so a single
+  # install from any worktree wires up hooks for every worktree.
   hook.extra = config: let
-    commands = lib.pipe config [
-      toStagesConfig
-      lib.attrNames
-      (lib.map (stage: ''ln -sf "${mkScript stage}" ".git/hooks/${stage}"''))
-      (stages:
-        lib.optional (stages != []) "mkdir -p .git/hooks"
-        ++ stages)
-      (lib.concatStringsSep "\n")
-    ];
-  in ''
-    if test "$(${lib.getExe nixpkgs.git} rev-parse --git-dir 2&gt;/dev/null)" = "$(${lib.getExe nixpkgs.git} rev-parse --git-common-dir 2&gt;/dev/null)"; then
-      ${commands}
-    fi
-  '';
+    stages = lib.pipe config [toStagesConfig lib.attrNames];
+    links =
+      lib.concatMapStringsSep "\n"
+      (stage: ''ln -sf "${mkScript stage}" "$_std_hooks_dir/${stage}"'')
+      stages;
+  in
+    lib.optionalString (stages != []) ''
+      _std_hooks_dir="$(${lib.getExe nixpkgs.git} rev-parse --git-path hooks)"
+      mkdir -p "$_std_hooks_dir"
+      ${links}
+      unset _std_hooks_dir
+    '';
 }
 </code></pre>
 <h6 id="explanation-of-the-in----block"><a class="header" href="#explanation-of-the-in----block">Explanation of the <code>in { ... }</code> block</a></h6>
@@ -809,51 +810,32 @@ Nixago block type how to generate and manage the <code>lefthook.yml</code> file.
 is just the template/scaffold, the real config data gets merged in by consumers
 (e.g. in <code>src/local/configs.nix</code> or wherever this is used). Nixago deep-merges
 <code>data</code> from the caller.</p>
-<p><code>hook.extra</code> is a Nixago hook hat runs whenever the generated <code>lefthook.yml</code> is
-materialized. It receives the final merged <code>config</code> (the full lefthook YAML
-content as a Nix attrset) and produces extra shell commands. Here’s the pipeline
-step by step:</p>
-<pre><code class="language-nix">hook.extra = config:
-  let
-    commands = lib.pipe config [
-      # 1. Strip non-stage keys (colors, extends, etc.)
-      #    e.g. { pre-commit = {...}; commit-msg = {...}; colors = true; }
-      #    becomes { pre-commit = {...}; commit-msg = {...}; }
-      toStagesConfig
-
-      # 2. Extract just the attribute names → ["pre-commit" "commit-msg"]
-      lib.attrNames
-
-      # 3. For each stage, create a symlink command:
-      #    ln -sf "/nix/store/...-lefthook-pre-commit" ".git/hooks/pre-commit"
-      #    The target is a Nix-built script (mkScript) that runs:
-      #      lefthook run "pre-commit" "$@"
-      #    (unless $LEFTHOOK == "0", which disables it)
-      (lib.map (stage: ''ln -sf "${mkScript stage}" ".git/hooks/${stage}"''))
-
-      # 4. Prepend "mkdir -p .git/hooks" IF there are any stages
-      #    ["mkdir -p .git/hooks" "ln -sf ..." "ln -sf ..."]
-      (stages:
-        lib.optional (stages != []) "mkdir -p .git/hooks"
-        ++ stages)
-
-      # 5. Join into a single newline-separated shell script string
-      (lib.concatStringsSep "\n")
-    ];
-  in ''
-    # Only install hooks in the main repo, not in worktrees.
-    # In worktrees, .git is a file pointing to the main repo's .git dir,
-    # so mkdir -p .git/hooks would fail.
-    if test "$(git rev-parse --git-dir)" = "$(git rev-parse --git-common-dir)"; then
-      ${commands}
-    fi
-  '';
-</code></pre>
+<p><code>hook.extra</code> is a Nixago hook that runs whenever the generated <code>lefthook.yml</code>
+is materialized. It receives the final merged <code>config</code> (the full lefthook YAML
+content as a Nix attrset) and emits a shell snippet that symlinks a Nix-built
+wrapper script into the repo’s hooks directory for each configured stage. The
+wrapper runs <code>lefthook run "&lt;stage&gt;" "$@"</code> unless <code>$LEFTHOOK == "0"</code> (escape
+hatch).</p>
+<h6 id="worktree-behavior"><a class="header" href="#worktree-behavior">Worktree behavior</a></h6>
+<p>The hooks directory is resolved via <code>git rev-parse --git-path hooks</code> rather
+than the literal <code>.git/hooks</code>. Two reasons:</p>
+<ol>
+<li>In a linked worktree, <code>.git</code> is a <em>file</em> (not a directory) pointing at
+<code>&lt;main&gt;/.git/worktrees/&lt;name&gt;</code>, so <code>mkdir -p .git/hooks</code> would fail.</li>
+<li>Per <a href="https://git-scm.com/docs/gitrepository-layout"><code>gitrepository-layout(5)</code></a>: <em>“This directory is ignored if
+<code>$GIT_COMMON_DIR</code> is set and <code>$GIT_COMMON_DIR/hooks</code> will be used
+instead.”</em> In other words, git always looks up hooks in the <strong>common</strong>
+gitdir, regardless of which worktree you commit from.</li>
+</ol>
+<p><code>--git-path hooks</code> returns <code>&lt;common-dir&gt;/hooks</code> from any worktree, so a single
+install (from main checkout or any worktree) wires up hooks for every
+worktree.</p>
+<h6 id="lifecycle"><a class="header" href="#lifecycle">Lifecycle</a></h6>
 <p>When you run the Nixago hook (e.g. via <code>direnv allow</code> or <code>std</code> commands), it:</p>
 <ol>
-<li>Writes <code>lefthook.yml</code> to your project root</li>
-<li>Runs this <code>hook.extra</code> script, which symlinks Nix-built wrapper scripts into
-<code>.git/hooks/</code> (only in the main repo, not in worktrees)</li>
+<li>Writes <code>lefthook.yml</code> to your project root.</li>
+<li>Runs <code>hook.extra</code>, which symlinks Nix-built wrapper scripts into the
+resolved hooks directory.</li>
 </ol>
 </div>
 </div>
