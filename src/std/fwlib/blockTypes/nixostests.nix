@@ -7,6 +7,7 @@ Use the NixosTests Blocktype in order to instrucement nixos
 vm-based test inside your reporisory.
 
 Available actions:
+  - build
   - run
   - run-vm
   - audit-script
@@ -32,6 +33,7 @@ in
       inherit (pkgs.stdenv) isLinux;
     in
       [
+        (actions.build currentSystem target)
         (mkCommand currentSystem "run" "run tests in headless vm" [] ''
           # ${target.driver}
           ${target.driver}/bin/nixos-test-driver
