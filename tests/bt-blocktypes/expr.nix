@@ -33,6 +33,8 @@
       configFile = "path/to/configFile";
     };
     nixostests = {
+      drvPath = "drvPath";
+      outPath = "outPath";
       driver = "driver";
       driverInteractive = "driverInteractive";
     };
