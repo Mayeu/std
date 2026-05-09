@@ -256,6 +256,13 @@
   nixostests = {
     actions = [
       {
+        command = <derivation build>;
+        description = "build it";
+        name = "build";
+        proviso = "std/fwlib/actions/build-proviso.sh";
+        targetDrv = "drvPath";
+      }
+      {
         command = <derivation run>;
         description = "run tests in headless vm";
         name = "run";
