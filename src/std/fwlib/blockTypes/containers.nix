@@ -29,7 +29,21 @@ in
     }: let
       inherit (inputs.n2c.packages.${currentSystem}) skopeo-nix2container;
       triv = trivial.${currentSystem};
-      proviso = ./containers-proviso.sh;
+      # Pin skopeo + jq by absolute store path so the proviso doesn't
+      # depend on whatever PATH the discover environment happens to
+      # provide.
+      proviso = triv.writeShellScript "containers-proviso" ''
+        declare action="$1"
+        declare image
+
+        eval "$(${triv.jq}/bin/jq -r '@sh "image=\(.meta.image)"' <<<"$action")"
+
+        if ${skopeo-nix2container}/bin/skopeo inspect --insecure-policy "docker://$image" &>/dev/null; then
+          exit 1
+        fi
+
+        exit 0
+      '';
 
       tags' =
         builtins.toFile "${target.name}-tags.json" (builtins.concatStringsSep "\n" target.image.tags);
